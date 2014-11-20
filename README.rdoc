@@ -1,28 +1,55 @@
-== README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+        # validation for particular context
+          validates_presence_of :shipping_name, on: [:create, :update, :shipping_step]
+          @order.invalid?(last_step.context)
 
-Things you may want to cover:
+        # service object for polymorphism
+        # step.rb
+        class Step < SimpleDelegator
+          def self.create(controller, step = 'billing_step')
+            step.camelize.constantize.new(controller)
+          end
+          ...
+        end
+        class BillingStep < Step
+          def step; 'billing_step' end
+          def next_step; 'shipping_step' end
+          def first?; true end
+          def inputs;%w{billing_name} end
+        end
+        class ShippingStep < Step
+          ...
 
-* Ruby version
+        # view: hide other inputs without lose them
+        = simple_form_for @order, url:submit_step_orders_path do |f|
+          = f.error_notification
+          - for column in @step.all_columns
+            - if @step.has_input?(column)
+              = f.input column
+            - else
+              = f.input column, as: :hidden
+          = f.submit 'Prev', name:'go_prev' unless @step.first?
+          = f.submit 'Next', name:'go_next' unless @step.last?
+          = f.button :submit if @step.last?
 
-* System dependencies
+        # use 'post' for each step, to pass params
+        # routes.rb
+          resources :orders do
+            collection do
+              get 'multi_step_new'
+              post 'submit_step'
+            end
+          end
+        # orders_controller.rb
+          def submit_step
+            return create if params[:commit]
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+            @order = Order.new(order_params)
+            last_step = Step.create(self,session[:last_step])       # save 'step' state into session
+            if @order.invalid?(last_step.context)
+              @step = last_step
+            else
+              @step = last_step.move
+            end
+            @step.render_me
+          end

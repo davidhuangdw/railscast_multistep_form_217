@@ -11,7 +11,7 @@ module MultiStepOrder
 
     @order = Order.new(order_params)
     last_step = Step.create(self,session[:last_step])
-    if @order.invalid?(last_step.step.to_sym)
+    if @order.invalid?(last_step.context)
       @step = last_step
     else
       @step = last_step.move

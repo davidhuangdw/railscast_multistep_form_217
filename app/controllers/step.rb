@@ -25,6 +25,7 @@ class Step < SimpleDelegator
   end
   def first?; false end
   def last?; false end
+  def context; step.to_sym end
 end
 
 class BillingStep < Step
