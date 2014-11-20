@@ -11,7 +11,11 @@ module MultiStepOrder
 
     @order = Order.new(order_params)
     last_step = Step.create(self,session[:last_step])
-    @step = last_step.move
+    if @order.invalid?(last_step.step.to_sym)
+      @step = last_step
+    else
+      @step = last_step.move
+    end
     @step.render_me
   end
 end

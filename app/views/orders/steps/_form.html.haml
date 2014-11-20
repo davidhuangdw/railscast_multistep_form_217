@@ -1,4 +1,5 @@
 = simple_form_for @order, url:submit_step_orders_path do |f|
+  = f.error_notification
   - for column in @step.all_columns
     - if @step.has_input?(column)
       = f.input column
