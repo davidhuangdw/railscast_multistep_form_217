@@ -1,0 +1,11 @@
+= simple_form_for @order, url:submit_step_orders_path do |f|
+  - for column in @step.all_columns
+    - if @step.has_input?(column)
+      = f.input column
+    - else
+      = f.input column, as: :hidden
+  = f.submit 'Prev', name:'go_prev' unless @step.first?
+  = f.submit 'Next', name:'go_next' unless @step.last?
+  = f.button :submit if @step.last?
+
+= link_to 'Drop', root_path

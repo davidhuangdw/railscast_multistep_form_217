@@ -1,0 +1,27 @@
+.page-header
+  = link_to new_order_path, :class => 'btn btn-primary' do
+    %span.glyphicon.glyphicon-plus
+    New Order
+  = link_to multi_step_new_orders_path, :class => 'btn btn-primary' do
+    %span.glyphicon.glyphicon-plus
+    Multi Step New Order
+  %h1 Listing orders
+
+.table-responsive
+  %table.table.table-striped.table-bordered.table-hover
+    %thead
+      %tr
+        %th Billing name
+        %th Shipping name
+        %th
+        %th
+        %th
+
+    %tbody
+      - @orders.each do |order|
+        %tr
+          %td= order.billing_name
+          %td= order.shipping_name
+          %td= link_to 'Show', order
+          %td= link_to 'Edit', edit_order_path(order)
+          %td= link_to 'Destroy', order, :data => { confirm: 'Are you sure?' }, :method => :delete

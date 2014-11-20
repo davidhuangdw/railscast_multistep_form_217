@@ -1,0 +1,13 @@
+%h2 Confirm
+
+%table.table.table-strip
+  %tr
+    %th Column
+    %th Value
+  - for column in @step.all_columns
+    %tr
+      %td=column
+      %td=@order.send(column)
+
+
+= render 'orders/steps/form'
